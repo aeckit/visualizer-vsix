@@ -1,0 +1,62 @@
+{
+  "name": "aeckit-visualizer",
+  "displayName": "AECKit Visualizer",
+  "description": "3D Geometry Visualizer for AECKit.",
+  "version": "0.0.1",
+  "publisher": "aeckit",
+  "repository": "https://github.com/aeckit/visualizer-vsix",
+  "license": "MIT",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Visualization"
+  ],
+  "activationEvents": [
+    "onCustomEditor:fissure.vizJsonViewer"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "fissure.helloWorld",
+        "title": "AECKit: Hello World"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "fissure.vizJsonViewer",
+        "displayName": "AECKit 3D Geometry Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.viz.json"
+          }
+        ],
+        "priority": "default"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "node esbuild.js && tsc -p ./",
+    "watch": "node esbuild.js --watch & tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.80.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.1.3"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
+    "@react-three/postprocessing": "^3.0.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "three": "^0.183.2"
+  }
+}

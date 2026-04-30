@@ -1,0 +1,11 @@
+node_modules/
+src/
+webview-ui/
+.vscode/
+.gemini/
+.git/
+.gitignore
+tsconfig.json
+esbuild.js
+package-lock.json
+*.vsix

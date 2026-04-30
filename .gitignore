@@ -1,0 +1,21 @@
+node_modules/
+out/
+.vscode-test/
+*.vsix
+.DS_Store
+.gemini/
+
+# Webview build artifacts (if applicable)
+webview-ui/build/
+webview-ui/dist/
+webview-ui/node_modules/
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# Mac specific
+.AppleDouble
+.LSOverride
+Icon
+._*

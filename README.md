@@ -1,4 +1,4 @@
-# AECKit Visualizer
+# aeckit Visualizer
 
 A VS Code extension that provides a custom 3D geometry viewer for `.viz.json` files.
 
@@ -41,6 +41,13 @@ A `.viz.json` file is a standard JSON file that describes wireframe geometry usi
 2. Open any file with the `.viz.json` extension.
 3. The 3D viewer opens automatically. To view the raw JSON alongside, split the editor (`Cmd+\`) and use **Reopen Editor With... → Text Editor** on the second pane.
 
+> [!TIP]
+> See the [examples/](./examples/) directory for sample files and instructions on how to **generate your own** visualization data.
+
 ## Requirements
 
 - VS Code 1.80.0 or later (or any compatible fork such as the Antigravity IDE)
+
+## Contributing
+
+For instructions on how to set up the project locally, run tests, and publish new versions, see [DEVELOPMENT.md](./DEVELOPMENT.md).

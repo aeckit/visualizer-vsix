@@ -1,7 +1,7 @@
 {
   "name": "aeckit-visualizer",
-  "displayName": "AECKit Visualizer",
-  "description": "3D Geometry Visualizer for AECKit.",
+  "displayName": "aeckit Visualizer",
+  "description": "3D Geometry Visualizer for aeckit.",
   "version": "0.0.1",
   "publisher": "aeckit",
   "repository": "https://github.com/aeckit/visualizer-vsix",
@@ -14,20 +14,14 @@
     "Visualization"
   ],
   "activationEvents": [
-    "onCustomEditor:fissure.vizJsonViewer"
+    "onCustomEditor:visualizer.vizJsonViewer"
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "fissure.helloWorld",
-        "title": "AECKit: Hello World"
-      }
-    ],
     "customEditors": [
       {
-        "viewType": "fissure.vizJsonViewer",
-        "displayName": "AECKit 3D Geometry Viewer",
+        "viewType": "visualizer.vizJsonViewer",
+        "displayName": "aeckit 3D Geometry Viewer",
         "selector": [
           {
             "filenamePattern": "*.viz.json"
@@ -55,6 +49,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.0",
     "@react-three/postprocessing": "^3.0.4",
+    "@types/three": "^0.184.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "three": "^0.183.2"

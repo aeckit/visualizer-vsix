@@ -30,6 +30,20 @@ const detectPlane = (vertices: number[][]): Plane2D | null => {
   return null;
 };
 
+interface WireframeData {
+  vertices: number[][];
+  edges: number[][];
+  color?: string;
+}
+
+const normalizeData = (data: any): WireframeData[] => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (data.objects && Array.isArray(data.objects)) return data.objects;
+  if (data.vertices && data.edges) return [data];
+  return [];
+};
+
 /* ── Saved 3D state ─────────────────────────────────────────────── */
 interface Saved3DState {
   camPos: THREE.Vector3;
@@ -109,25 +123,36 @@ const CameraController = ({
 };
 
 /* ── Wireframe model ────────────────────────────────────────────── */
-const WireframeModel = ({ data, autoRotate, is2D }: { data: any; autoRotate: boolean; is2D: boolean }) => {
+const WireframeModel = ({ objects, autoRotate, is2D }: { objects: WireframeData[]; autoRotate: boolean; is2D: boolean }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const [vertices, setVertices] = useState<THREE.Vector3[]>([]);
+  
+  // State for global offset to center everything
+  const [globalCenter, setGlobalCenter] = useState<THREE.Vector3>(new THREE.Vector3());
 
-  // Initialize vertices when data changes
+  // Calculate global bounding box to center all models
   useEffect(() => {
-    if (!data || !data.vertices) return;
+    if (!objects || objects.length === 0) return;
 
-    // Calculate bounding box to center the model
     const bg = new THREE.Box3();
-    data.vertices.forEach((v: number[]) => bg.expandByPoint(new THREE.Vector3(v[0], v[1], v[2])));
-    const center = new THREE.Vector3();
-    bg.getCenter(center);
+    let hasVertices = false;
+    
+    objects.forEach(obj => {
+      if (obj.vertices) {
+        obj.vertices.forEach((v: number[]) => {
+          bg.expandByPoint(new THREE.Vector3(v[0], v[1], v[2]));
+          hasVertices = true;
+        });
+      }
+    });
 
-    const initialVertices = data.vertices.map((v: number[]) =>
-      new THREE.Vector3(v[0] - center.x, v[1] - center.y, v[2] - center.z)
-    );
-    setVertices(initialVertices);
-  }, [data]);
+    if (hasVertices) {
+      const center = new THREE.Vector3();
+      bg.getCenter(center);
+      setGlobalCenter(center);
+    } else {
+      setGlobalCenter(new THREE.Vector3());
+    }
+  }, [objects]);
 
   // Reset model rotation when entering 2D mode
   useEffect(() => {
@@ -143,31 +168,41 @@ const WireframeModel = ({ data, autoRotate, is2D }: { data: any; autoRotate: boo
     }
   });
 
-  const lines = useMemo(() => {
-    if (!data || !data.edges || vertices.length === 0) return null;
-    return data.edges.map((edge: number[], index: number) => {
-      const v1 = vertices[edge[0]];
-      const v2 = vertices[edge[1]];
-      if (!v1 || !v2) return null;
-      return (
-        <Line
-          key={`edge-${index}`}
-          points={[v1, v2]}
-          color="#58a6ff"
-          lineWidth={2}
-        />
-      );
-    });
-  }, [data, vertices]);
-
   return (
     <group ref={groupRef}>
-      {lines}
-      {vertices.map((v, i) => (
-        <Sphere key={`node-${i}`} args={[0.4, 16, 16]} position={v}>
-          <meshStandardMaterial color="#58a6ff" />
-        </Sphere>
-      ))}
+      {objects.map((obj, objIdx) => {
+        if (!obj.vertices || !obj.edges) return null;
+        
+        // Apply global offset
+        const transformedVertices = obj.vertices.map((v: number[]) => 
+          new THREE.Vector3(v[0] - globalCenter.x, v[1] - globalCenter.y, v[2] - globalCenter.z)
+        );
+        
+        const objColor = obj.color || '#58a6ff';
+
+        return (
+          <group key={`obj-${objIdx}`}>
+            {obj.edges.map((edge: number[], edgeIdx: number) => {
+              const v1 = transformedVertices[edge[0]];
+              const v2 = transformedVertices[edge[1]];
+              if (!v1 || !v2) return null;
+              return (
+                <Line
+                  key={`obj-${objIdx}-edge-${edgeIdx}`}
+                  points={[v1, v2]}
+                  color={objColor}
+                  lineWidth={2}
+                />
+              );
+            })}
+            {transformedVertices.map((v, vIdx) => (
+              <Sphere key={`obj-${objIdx}-node-${vIdx}`} args={[0.4, 16, 16]} position={v}>
+                <meshStandardMaterial color={objColor} />
+              </Sphere>
+            ))}
+          </group>
+        );
+      })}
     </group>
   );
 };
@@ -202,8 +237,10 @@ const separator: React.CSSProperties = {
 };
 
 /* ── Main component ─────────────────────────────────────────────── */
-const GeometryViewer = ({ data }: { data: any }) => {
-  const detected = data?.vertices ? detectPlane(data.vertices) : null;
+const GeometryViewer = ({ data, rawText }: { data: any, rawText?: string }) => {
+  const objects = normalizeData(data);
+  const allVertices = objects.flatMap(obj => obj.vertices || []);
+  const detected = allVertices.length > 0 ? detectPlane(allVertices) : null;
 
   const [is2D, setIs2D] = useState(detected !== null);
   const [plane, setPlane] = useState<Plane2D>(detected ?? 'XY');
@@ -214,7 +251,9 @@ const GeometryViewer = ({ data }: { data: any }) => {
 
   // Re-detect when new file data arrives
   useEffect(() => {
-    const det = data?.vertices ? detectPlane(data.vertices) : null;
+    const objs = normalizeData(data);
+    const allVerts = objs.flatMap(obj => obj.vertices || []);
+    const det = allVerts.length > 0 ? detectPlane(allVerts) : null;
     setIs2D(det !== null);
     setPlane(det ?? 'XY');
     setAutoRotate(det === null);
@@ -230,12 +269,14 @@ const GeometryViewer = ({ data }: { data: any }) => {
         display: 'flex', gap: '6px', alignItems: 'center',
       }}>
         {/* 2D / 3D toggle */}
-        <button onClick={() => { setIs2D(true); setAutoRotate(false); }} style={is2D ? btnActive : btnInactive}>
-          2D
-        </button>
-        <button onClick={() => { setIs2D(false); }} style={!is2D ? btnActive : btnInactive}>
-          3D
-        </button>
+        <>
+          <button onClick={() => { setIs2D(true); setAutoRotate(false); }} style={is2D ? btnActive : btnInactive}>
+            2D
+          </button>
+          <button onClick={() => { setIs2D(false); }} style={!is2D ? btnActive : btnInactive}>
+            3D
+          </button>
+        </>
 
         {/* Plane selector (only in 2D) */}
         {is2D && (
@@ -262,15 +303,25 @@ const GeometryViewer = ({ data }: { data: any }) => {
             </button>
           </>
         )}
+
+        {/* JSON toggle */}
+        <div style={separator} />
+        <button onClick={() => {
+          if ((window as any).vscode) {
+            (window as any).vscode.postMessage({ type: 'openJson' });
+          }
+        }} style={btnInactive}>
+          {'{ } JSON'}
+        </button>
       </div>
 
-      {/* ── Three.js Canvas ─────────────────────────────────── */}
+      {/* ── Main Content ─────────────────────────────────── */}
       <Canvas camera={{ position: [20, 15, 20], fov: 50 }}>
         <CameraController is2D={is2D} plane={plane} orbitRef={orbitRef} saved3DRef={saved3DRef} />
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} />
 
-        <WireframeModel data={data} autoRotate={autoRotate && !is2D} is2D={is2D} />
+        <WireframeModel objects={objects} autoRotate={autoRotate && !is2D} is2D={is2D} />
 
         {!is2D && (
           <Grid

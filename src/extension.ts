@@ -1,19 +1,13 @@
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('AECKit Visualizer extension is now active!');
-
-    // Register a simple test command
-    let disposable = vscode.commands.registerCommand('fissure.helloWorld', () => {
-        vscode.window.showInformationMessage('Hello World from AECKit Visualizer!');
-    });
-    context.subscriptions.push(disposable);
+    console.log('aeckit Visualizer extension is now active!');
 
     // Register the custom editor provider for '.viz.json' files
     context.subscriptions.push(VizJsonEditorProvider.register(context));
 }
 
-export function deactivate() {}
+export function deactivate() { }
 
 class VizJsonEditorProvider implements vscode.CustomTextEditorProvider {
     public static register(context: vscode.ExtensionContext): vscode.Disposable {
@@ -28,7 +22,7 @@ class VizJsonEditorProvider implements vscode.CustomTextEditorProvider {
         return providerRegistration;
     }
 
-    private static readonly viewType = 'fissure.vizJsonViewer';
+    private static readonly viewType = 'visualizer.vizJsonViewer';
 
     constructor(private readonly context: vscode.ExtensionContext) { }
 
@@ -41,7 +35,7 @@ class VizJsonEditorProvider implements vscode.CustomTextEditorProvider {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'out')]
         };
-        
+
         // Listen to changes in the file
         const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
             if (e.document.uri.toString() === document.uri.toString()) {
@@ -51,7 +45,7 @@ class VizJsonEditorProvider implements vscode.CustomTextEditorProvider {
                 });
             }
         });
-        
+
         webviewPanel.onDidDispose(() => {
             changeDocumentSubscription.dispose();
         });
@@ -67,6 +61,8 @@ class VizJsonEditorProvider implements vscode.CustomTextEditorProvider {
                     type: 'update',
                     text: document.getText(),
                 });
+            } else if (e.type === 'openJson') {
+                vscode.window.showTextDocument(document, vscode.ViewColumn.Beside);
             }
         });
     }
@@ -74,7 +70,7 @@ class VizJsonEditorProvider implements vscode.CustomTextEditorProvider {
     private updateWebview(webview: vscode.Webview) {
         // Get the URI of the compiled React bundle
         const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'out', 'webview.js'));
-        
+
         // Use a strict content security policy for safety
         const nonce = getNonce();
 
@@ -84,7 +80,7 @@ class VizJsonEditorProvider implements vscode.CustomTextEditorProvider {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>AECKit Geometry Viewer</title>
+                <title>aeckit Geometry Viewer</title>
                 <style>
                     body { margin: 0; padding: 0; box-sizing: border-box; overflow: hidden; background-color: var(--vscode-editor-background); }
                     #root { width: 100vw; height: 100vh; }

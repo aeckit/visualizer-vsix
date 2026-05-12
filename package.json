@@ -2,7 +2,7 @@
   "name": "aeckit-visualizer",
   "displayName": "aeckit Visualizer",
   "description": "3D Geometry Visualizer for aeckit.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "aeckit",
   "repository": "https://github.com/aeckit/visualizer-vsix",
   "license": "MIT",

@@ -59,37 +59,67 @@ The project uses `esbuild` to bundle the React webview and `tsc` for the extensi
 
 ## Publishing
 
-### 1. Versioning
+This section describes how to release a new version of the extension to the Visual Studio Marketplace and the Open VSX Registry.
 
-Before publishing, ensure the version number in `package.json` is updated according to [Semantic Versioning](https://semver.org/).
+### 1. Preparation
 
-### 2. Packaging
+Before publishing, ensure the following are updated and verified:
 
-To package the extension into a `.vsix` file:
+- [ ] **Version**: Bump the `"version"` in `package.json` (e.g., `0.0.2`) according to [SemVer](https://semver.org/).
+- [ ] **Changelog**: (Optional) Update the `README.md` or a `CHANGELOG.md` with new features.
+- [ ] **Metadata**: Ensure `LICENSE`, `icon.png`, and `README.md` are present in the root.
+- [ ] **Ignore List**: Check `.vscodeignore` to ensure development files are excluded.
+
+### 2. Build & Package
+
+To create the `.vsix` bundle:
 
 ```bash
-# Ensure everything is compiled
+# 1. Clean and install dependencies
+npm install
+
+# 2. Build the extension and webview
 npm run compile
 
-# Create the package
-npx vsce package
+# 3. Create the package
+npx @vscode/vsce package
 ```
 
-This will generate a file named `aeckit-visualizer-X.X.X.vsix`.
+#### Verification
+Before uploading, verify that the package only contains necessary files:
+```bash
+npx @vscode/vsce ls --tree
+```
+> [!IMPORTANT]
+> Ensure that `node_modules/`, `src/`, and `webview-ui/` are **excluded** from the output. If they appear, update `.vscodeignore`.
 
 ### 3. Publishing to Registries
 
-The extension is published to both the Visual Studio Marketplace and the Open VSX Registry.
-
 #### Visual Studio Marketplace
+To publish to the official VS Code marketplace, you need a Personal Access Token (PAT) from Azure DevOps.
+
 ```bash
-npx vsce publish
+# Login (one-time)
+npx @vscode/vsce login aeckit
+
+# Publish
+npx @vscode/vsce publish
 ```
+*Alternatively, pass the token directly:* `npx @vscode/vsce publish -p $VSCE_PAT`
 
 #### Open VSX Registry
+To publish to the Open VSX registry (used by Antigravity, VSCodium, etc.), you need an [Open VSX PAT](https://open-vsx.org/settings/tokens).
+
 ```bash
-npx ovsx publish
+# Publish using your token
+npx ovsx publish --pat $OVSX_PAT
 ```
 
-> [!IMPORTANT]
-> You will need to have the appropriate access tokens (PAT for Azure DevOps / Open VSX Token) configured or passed via the command line to publish.
+### Quick Reference: Publishing a New Version
+
+If you have your environment variables (`VSCE_PAT`, `OVSX_PAT`) configured, the process is:
+
+1. Update version in `package.json`.
+2. `npm run compile`
+3. `npx @vscode/vsce publish -p $VSCE_PAT`
+4. `npx ovsx publish --pat $OVSX_PAT`

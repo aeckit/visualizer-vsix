@@ -68,6 +68,7 @@ const GeometryViewer = ({ data, rawText }: { data: any, rawText?: string }) => {
   const [showJson, setShowJson] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'blueprint' | 'architectural'>('dark');
   const [vscodeBg, setVscodeBg] = useState('#1e1e1e');
+  const [nodeSizeMultiplier, setNodeSizeMultiplier] = useState<number>(1.0);
 
   const orbitRef = useRef<any>(null);
   const saved3DRef = useRef<any>(null);
@@ -140,6 +141,20 @@ const GeometryViewer = ({ data, rawText }: { data: any, rawText?: string }) => {
         {!showJson && (
           <>
             <div style={separator} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'var(--vscode-button-secondaryBackground, #3a3d41)', padding: '5px 10px', borderRadius: '4px', border: '1px solid var(--vscode-button-border, transparent)', height: '26px', boxSizing: 'border-box' }}>
+              <span style={{ fontSize: '11px', color: 'var(--vscode-foreground, #ccc)', fontFamily: 'var(--vscode-font-family, sans-serif)' }}>Node Size:</span>
+              <input
+                type="range"
+                min="0"
+                max="2"
+                step="0.05"
+                value={nodeSizeMultiplier}
+                onChange={(e) => setNodeSizeMultiplier(parseFloat(e.target.value))}
+                style={{ width: '60px', cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: '11px', color: 'var(--vscode-foreground, #ccc)', fontFamily: 'monospace', width: '25px', textAlign: 'right' }}>{nodeSizeMultiplier.toFixed(2)}</span>
+            </div>
+            <div style={separator} />
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value as any)}
@@ -185,7 +200,7 @@ const GeometryViewer = ({ data, rawText }: { data: any, rawText?: string }) => {
           <ambientLight intensity={theme === 'dark' ? 0.5 : 0.8} />
           <directionalLight position={[10, 10, 5]} intensity={theme === 'dark' ? 1 : 0.8} />
 
-          <GeometryModel data={normalized} autoRotate={autoRotate && !is2D} is2D={is2D} theme={theme} bgColor={bgColor} />
+          <GeometryModel data={normalized} autoRotate={autoRotate && !is2D} is2D={is2D} theme={theme} bgColor={bgColor} nodeSizeMultiplier={nodeSizeMultiplier} />
 
           {!is2D && theme === 'dark' && (
             <Grid

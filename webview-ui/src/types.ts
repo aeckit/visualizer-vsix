@@ -8,6 +8,8 @@ export interface GeometryObject {
   thicknessUnit?: 'inches' | 'feet';
   vertices: number[][];
   edges: number[][];
+  faces?: number[][];
+  opacity?: number;
   color?: string;
 }
 

@@ -5,7 +5,7 @@ import { NormalizedData } from '../types';
 import { FloorPlanRenderer } from './renderers/FloorPlanRenderer';
 import { WireframeRenderer } from './renderers/WireframeRenderer';
 
-export const GeometryModel = ({ data, autoRotate, is2D, theme, bgColor }: { data: NormalizedData; autoRotate: boolean; is2D: boolean; theme: string; bgColor: string }) => {
+export const GeometryModel = ({ data, autoRotate, is2D, theme, bgColor, nodeSizeMultiplier = 1.0 }: { data: NormalizedData; autoRotate: boolean; is2D: boolean; theme: string; bgColor: string; nodeSizeMultiplier?: number }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   const { globalType, globalThickness, globalThicknessUnit, objects } = data;
@@ -93,6 +93,7 @@ export const GeometryModel = ({ data, autoRotate, is2D, theme, bgColor }: { data
             objIdx={objIdx}
             transformedVertices={transformedVertices}
             objColor={objColor}
+            nodeSizeMultiplier={nodeSizeMultiplier}
           />
         );
       })}

@@ -62,7 +62,7 @@ class VizJsonEditorProvider implements vscode.CustomTextEditorProvider {
                     text: document.getText(),
                 });
             } else if (e.type === 'openJson') {
-                vscode.window.showTextDocument(document, vscode.ViewColumn.Beside);
+                vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', vscode.ViewColumn.Beside);
             }
         });
     }

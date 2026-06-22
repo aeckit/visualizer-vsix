@@ -50,6 +50,27 @@ The project uses `esbuild` to bundle the React webview and `tsc` for the extensi
 > [!TIP]
 > If you are modifying the Webview (React) code, you can simply reload the Extension Development Host window (`Developer: Reload Window` command) to see your changes after the watch task has finished rebuilding.
 
+### Automated Testing
+
+This project uses a hybrid testing approach:
+- **Frontend (Webview):** Uses [Vitest](https://vitest.dev/) to test React components.
+- **Backend (Extension):** Uses [Mocha](https://mochajs.org/) and `@vscode/test-electron` to run integration tests inside a real VS Code instance.
+
+To run the tests, use the following commands:
+
+- **Run all tests:**
+  ```bash
+  npm test
+  ```
+- **Run only frontend UI tests:**
+  ```bash
+  npm run test:ui
+  ```
+- **Run only backend VS Code tests:**
+  ```bash
+  npm run test:vscode
+  ```
+
 ## Project Structure
 
 - `src/`: Extension backend logic (VS Code integration).

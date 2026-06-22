@@ -4,7 +4,8 @@ A VS Code extension that provides a custom 3D geometry viewer for `.viz.json` fi
 
 ## Features
 
-- **3D Wireframe Viewer** — Opens `.viz.json` files in an interactive 3D viewer powered by Three.js instead of the default text editor.
+- **3D Wireframe & Faces** — Opens `.viz.json` files in an interactive 3D viewer powered by Three.js. Supports transparent 3D faces alongside wireframes.
+- **Node Size Slider** — Interactively adjust the size of geometry nodes directly from the viewer's UI.
 - **2D / 3D Toggle** — Switch between a top-down 2D plan view and a full 3D perspective.
 - **Plane Selection** — In 2D mode, snap the camera to the XY, XZ, or YZ plane.
 - **Auto-Rotate** — Optional auto-rotation in 3D mode with a single click to toggle.
@@ -34,6 +35,8 @@ A `.viz.json` file is a standard JSON file that describes wireframe geometry usi
 | `type` | Currently supports `"wireframe"` |
 | `vertices` | Array of `[x, y, z]` coordinate triples |
 | `edges` | Array of `[startIndex, endIndex]` pairs referencing vertices |
+| `faces` | *(Optional)* Array of vertex index arrays indicating polygonal faces (e.g., `[[0, 1, 2], ...]`) |
+| `opacity` | *(Optional)* Number between `0` and `1` defining the transparency of the faces (defaults to `1.0`) |
 
 ## Usage
 
